@@ -30,6 +30,8 @@ public class ReadestSyncService {
         BookLoreUser authUser = authenticationService.getAuthenticatedUser();
         Long userId = authUser.getId();
 
+        String documentId = String.valueOf(bookFileId);
+
         BookFileEntity file = resolver.resolve(bookFileId);
 
         return fileProgressRepository
@@ -50,6 +52,8 @@ public class ReadestSyncService {
 
         BookLoreUser authUser = authenticationService.getAuthenticatedUser();
         Long userId = authUser.getId();
+
+        String documentId = String.valueOf(bookFileId);
 
         BookLoreUserEntity user = userRepository.findById(userId)
                 .orElseThrow();
