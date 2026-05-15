@@ -1,21 +1,39 @@
 package org.booklore.service.readest;
+import org.booklore.model.dto.BookLoreUser;
+import org.booklore.model.dto.readest.ReadestSyncState;
+import org.booklore.model.entity.BookFileEntity;
+import org.booklore.model.entity.BookLoreUserEntity;
+import org.booklore.model.entity.UserBookFileProgressEntity;
+import org.booklore.repository.UserBookFileProgressRepository;
+import org.booklore.repository.UserRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class ReadestSyncService {
+
+    private final ReadestDocumentResolver resolver;
     private final UserBookFileProgressRepository fileProgressRepository;
     private final UserRepository userRepository;
     private final AuthenticationService authenticationService;
 
     @Transactional(readOnly = true)
-    public ReadestSyncState getProgress(String documentId) {
+    public ReadestSyncState getProgress(Long bookFileId) {
 
         BookLoreUser authUser = authenticationService.getAuthenticatedUser();
         Long userId = authUser.getId();
 
-        BookFileEntity file = resolver.resolve(documentId);
+        BookFileEntity file = resolver.resolve(bookFileId);
 
         return fileProgressRepository
                 .findByUserIdAndBookFileId(userId, file.getId())
                 .map(progress -> mapToDto(documentId, progress))
                 .orElseGet(() -> ReadestSyncState.builder()
-                        .documentId(documentId)
+                        .documentId(String.valueOf(bookFileId))
                         .progression(0f)
                         .updatedAt(Instant.EPOCH)
                         .build());
@@ -23,7 +41,7 @@ package org.booklore.service.readest;
 
     @Transactional
     public ReadestSyncState updateProgress(
-            String documentId,
+            Long bookFileId,
             ReadestSyncState incoming
     ) {
 
@@ -33,7 +51,7 @@ package org.booklore.service.readest;
         BookLoreUserEntity user = userRepository.findById(userId)
                 .orElseThrow();
 
-        BookFileEntity file = resolver.resolve(documentId);
+        BookFileEntity file = resolver.resolve(bookFileId);
 
         UserBookFileProgressEntity entity = fileProgressRepository
                 .findByUserIdAndBookFileId(userId, file.getId())
@@ -52,7 +70,7 @@ package org.booklore.service.readest;
 
         if (existingTime != null && existingTime.isAfter(incomingTime)) {
             log.debug("Ignoring outdated Readest sync update");
-            return mapToDto(documentId, entity);
+            return mapToDto(String.valueOf(bookFileId), entity);
         }
 
         entity.setProgressPercent(incoming.getProgression());

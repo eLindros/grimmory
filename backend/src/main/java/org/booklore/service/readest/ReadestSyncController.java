@@ -12,18 +12,18 @@ public class ReadestSyncController {
 
     private final ReadestSyncService service;
 
-    @GetMapping("/{documentId}")
+    @GetMapping("/bookfile/{bookFileId}")
     public ReadestSyncState getProgress(
-            @PathVariable String documentId
+            @PathVariable Long bookFileId
     ) {
-        return service.getProgress(documentId);
+        return service.getProgress(bookFileId);
     }
 
-    @PostMapping("/{documentId}")
+    @PostMapping("/bookfile/{bookFileId}")
     public ReadestSyncState updateProgress(
-            @PathVariable String documentId,
+            @PathVariable Long bookFileId,
             @RequestBody ReadestSyncState state
     ) {
-        return service.updateProgress(documentId, state);
+        return service.updateProgress(bookFileId, state);
     }
 }

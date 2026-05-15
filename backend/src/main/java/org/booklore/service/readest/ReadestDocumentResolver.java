@@ -11,9 +11,9 @@ public class ReadestDocumentResolver {
 
     private final BookFileRepository bookFileRepository;
 
-    public BookFileEntity resolve(String documentId) {
-        return bookFileRepository.findBySha256(documentId)
+    public BookFileEntity resolve(Long bookFileId) {
+        return bookFileRepository.findById(bookFileId)
                 .orElseThrow(() -> new IllegalArgumentException(
-                        "No book file found for documentId: " + documentId));
+                        "No book file found for id: " + bookFileId));
     }
 }
