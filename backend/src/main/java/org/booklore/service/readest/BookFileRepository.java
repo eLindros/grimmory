@@ -1,0 +1,1 @@
+Optional<BookFileEntity> findBySha256(String sha256);
